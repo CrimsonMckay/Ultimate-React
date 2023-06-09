@@ -1,3 +1,5 @@
+import React from "react";
+
 const pizzaData = [
   {
     name: "Focaccia",
@@ -61,10 +63,26 @@ const Header = () => {
 };
 
 const Menu = () => {
+  const numPizzas = pizzaData.length;
   return (
     <main className="menu">
       <h2>Our Menu</h2>
-      <Pizza name="Pizza Spinaci" ingredient="" photoName="" />
+      {numPizzas ? (
+        <React.Fragment>
+          <p>
+            Authentic Italian cuisine. 6 creative dishes to choose from. All
+            from our stone oven, all organic, all delicious.
+          </p>
+
+          <ul className="pizzas">
+            {pizzaData.map((pizza) => {
+              return <Pizza pizzaObj={pizza} key={pizza.name} />;
+            })}
+          </ul>
+        </React.Fragment>
+      ) : (
+        <p>W're still working on our menu.Please come back later</p>
+      )}
     </main>
   );
 };
@@ -76,15 +94,33 @@ const Footer = () => {
   const isOpen = hour >= openHour && hour <= closeHour;
 
   return (
-    <footer cl>{new Date().toLocaleTimeString()} We're currently opened</footer>
+    <footer className="footer">
+      {isOpen && <Order closeHour={closeHour} />}
+    </footer>
   );
 };
 
-function Pizza() {
+function Order({ closeHour }) {
   return (
-    <div>
-      <img src="pizzas/spinaci.jpg" alt="Pizza spinaci" />
+    <div className="order">
+      <p>We are open until {closeHour}:00. Come visit us or order online.</p>
+      <button className="btn">Order</button>
     </div>
+  );
+}
+
+function Pizza({ pizzaObj }) {
+  // if (pizzaObj.soldOut) return null;
+
+  return (
+    <li className={`pizza ${pizzaObj.soldOut ? "sold-out" : ""}`}>
+      <img src={pizzaObj.photoName} alt={pizzaObj.photoName} />
+      <div>
+        <h3>{pizzaObj.name}</h3>
+        <p>{pizzaObj.ingredients}</p>
+        <span>{pizzaObj.soldOut ? "SOLD OUT" : pizzaObj.price}</span>
+      </div>
+    </li>
   );
 }
 export default App;
