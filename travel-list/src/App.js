@@ -7,11 +7,31 @@ const initialItems = [
 ];
 
 export default function App() {
+  const [items, setItems] = useState(initialItems);
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+  }
+  function handleDeleteItem(id) {
+    console.log(id);
+    setItems((items) => items.map((item) => item.id === id));
+  }
+  function handleToggleItem(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackagingList />
+      <Form onAddItems={handleAddItems} />
+      <PackagingList
+        items={items}
+        onDeleteItem={handleDeleteItem}
+        onToggleItems={handleToggleItem}
+      />
       <Stats />
     </div>
   );
@@ -20,21 +40,37 @@ export default function App() {
 function Logo() {
   return <h1>🌴Far Away💼 </h1>;
 }
-function Form() {
+function Form({ onAddItems }) {
   const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(description);
+    if (!description) return;
+    const newItem = {
+      description,
+      quantity,
+      packed: false,
+      id: Date.now(),
+    };
+    onAddItems(newItem);
+    setDescription("");
+    setQuantity(1);
   };
 
   const handleChange = (e) => {
-    console.log(description);
     setDescription(e.target.value);
   };
   return (
     <form className="add-form" onSubmit={handleSubmit}>
       <h3>what do you need for your 😍 trip</h3>
-      <select>
+      <select
+        value={quantity}
+        onChange={(e) => {
+          console.log(quantity);
+          setQuantity(+e.target.value);
+        }}
+      >
         {Array.from({ length: 20 }, (_, i) => i + 1).map((num, i) => (
           <option value={num} key={i}>
             {num}
@@ -51,26 +87,27 @@ function Form() {
     </form>
   );
 }
-function PackagingList() {
+function PackagingList({ items, onDeleteItem }) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
-          <Item item={item} key={item.id} />
+        {items.map((item) => (
+          <Item item={item} key={item.id} onDeleteItem={onDeleteItem} />
         ))}
       </ul>
     </div>
   );
 }
 
-function Item({ item }) {
+function Item({ item, onDeleteItem }) {
   return (
     <li>
+      <input type="checkbox" value={item.packed} onChange={() => {}} />
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {""}
         {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => onDeleteItem(item.id)}>❌</button>
     </li>
   );
 }
